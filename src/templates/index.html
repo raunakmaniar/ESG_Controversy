@@ -3,27 +3,103 @@
 <head>
    <style>
       body {
-        background-image: url('/static/backai.jpg');
+        /* background-image: url('/static/backai.jpg'); */
+        background-repeat: no-repeat;
       }
       #processDiv{
-         left: 40%;
+         left: 37%;
          position: relative;
          margin: 50px 50px;
+      }
+      .ui-progressbar {
+         position: relative;
+      }
+      #progressbar{
+         display: none;
+      }
+      .progress-label {
+         position: relative;
+         top: 14px;
+         font-weight: bold;
+         color: gainsboro;
+         text-shadow: 1px 1px 0 rgb(6 6 6);
+      }
+
+      /* table, th,td{
+         border: solid 1px #ddd;
+         border-collapse: collapse;
+         padding: 2px 3px;
+         text-align:center;
+         color: #ddd;
+         word-wrap: break-word;
+      }
+      th {
+         font-weight: bold;
+      } */
+      table {border-collapse:collapse; table-layout:fixed; width:310px;}
+      table td {border:solid 1px black; width:100px; word-wrap:break-word;}
+      #myPieChart{
+         height: 400px;
+      }
+      #tblID{
+         width: 80%;
+         overflow-y: auto;
+         height: 600px;
+         /* margin-right: 10px; */
+         padding-right: 10px;
+      }
+      #imapact{
+         margin: 10px 10px;
+         padding: 10px 10px;
+         position: relative;
+         display: none;
+      }
+      .tblwidth10{
+         width:10%;
+         border: solid 1px;
+         text-align: center;
+      }
+      .tblwidth15{
+         width: 15%;
+         border: solid 1px;
+         text-align: center;
+      }
+      .tblwidth50{
+         width: 50%;
+         border: solid 1px;
+         text-align: center;
+      }
+      #spanid{
+         display: flex;
+         padding: 10px 10px;
+         text-align: center;
+         /* margin: 50%; */
+         margin-left: 36%;
       }
       </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
       $(document).ready(function(){
+               // impactData= [{'Filename': 'Data3226.txt', 'Org': 'WND', 'nature of Imapact': ['Customer_Relations', 'Privacy_And_Data_Security', 'Others', 'Customer_Others', 'AntiCompetetive_Prcatices', 'Social_Others', 'Customer_Relations', 'Social_Others', 'Energy_And_Climate_Change', 'Others', 'Supply_Chain_Management', 'Customer_Others', 'Envionmental_Others', 'Toxic_Emissions_And_Waste'], 'Severity': {'label': 'Social_Others', 'score': 0.4700976610183716}, 'ESG Category': 'Social'}, {'Filename': 'Data3227.txt', 'Org': 'Trevor Schakohl\n\nDaily Caller News Foundation', 'nature of Imapact': ['Customer_Relations', 'Privacy_And_Data_Security', 'Social_Others', 'Social_Others', 'Privacy_And_Data_Security'], 'Severity': {'label': 'Privacy_And_Data_Security', 'score': 0.5326249003410339}, 'ESG Category': 'Social'}, {'Filename': 'Data3228.txt', 'Org': null, 'nature of Imapact': ['Customer_Relations'], 'Severity': null, 'ESG Category': 'Governance'}]
                
-
                
-               $("#process").on('click',function(){
+               $("#Capa_1").on('click',function(){
+                  var progressbar = $( "#progressbar" ),
+                        progressLabel = $( ".progress-label" );
+                        progressbar.show();
+                     console.log('start')
                      $.post("http://127.0.0.1:5000/uploader",function(response){
-
+                        var data = response['data'];
                         var esg = response['chart'];
-                        console.log('Chart',esg)
+                        var impactData = response['tableData'];
+                        progressbar.hide()
+                        $('#imapact').show()
+                        console.log('Data',response)
                         var options = {
                               title: {
                                  text: "ESG SCORE"
@@ -37,25 +113,250 @@
                                     yValueFormatString:"#,##0.#"%"",
                                     dataPoints: [
                                        { label: "Environmental", y: esg['Environmental'] },
-                                       { label: "Social Marketing", y: esg['Social'] },
-                                       { label: "Goverance", y: esg['Goverance'] },
+                                       { label: "Social", y: esg['Social'] },
+                                       { label: "Goverance", y: esg['Governance'] },
                                        { label: "Other", y: esg['None'] }
                                     ]
                               }]
                            };
                            $("#myPieChart").CanvasJSChart(options);
+                           $('#imapactBody').empty()
+                           tableBody = ""
+                           for(var i=0;i<impactData.length;i++){
+                              console.log('v',impactData[i])
+                              tableBody += '<tr>'
+                                 +'<td class="tblwidth10">'+impactData[i]['Filename']+'</td>'
+                                 +'<td class="tblwidth10">'+impactData[i]['ESG Category']+'</td>'
+                                 +'<td class="tblwidth50">'+impactData[i]['nature of Imapact']+'</td>'
+                                 +'<td class="tblwidth15">'+impactData[i]['Org']+'</td>'
+                                 +'</tr>'
+                           }
+                           $('#imapactBody').append(tableBody)
                });
             });
       });
 </script>
 
-</script>
    <body >
+      <span id="spanid" style="display: flex;padding: 10px 10px;text-align: center;/* margin: 50%; */margin-left: 36%;"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 473.931 473.931" style="enable-background:new 0 0 473.931 473.931;width: 50px;height: 50px;" xml:space="preserve">
+         <circle style="fill:#357180;" cx="236.966" cy="236.966" r="236.966"></circle>
+         <path style="fill:#202121;" d="M364.818,375.613c0,22.297-18.08,40.381-40.381,40.381H156.189c-22.301,0-40.381-18.08-40.381-40.381
+            v-262.47c0-22.297,18.08-40.381,40.381-40.381h168.248c22.301,0,40.381,18.08,40.381,40.381V375.613z"></path>
+         <g>
+            <path style="fill:#4E4E4E;" d="M177.071,380.14c0,3.076-2.488,5.568-5.564,5.568h-23.206c-3.076,0-5.571-2.492-5.571-5.568v-23.184
+               c0-3.079,2.496-5.571,5.571-5.571h23.206c3.076,0,5.564,2.496,5.564,5.571V380.14z"></path>
+            <path style="fill:#4E4E4E;" d="M217.116,380.14c0,3.076-2.488,5.568-5.56,5.568h-23.21c-3.076,0-5.571-2.492-5.571-5.568v-23.184
+               c0-3.079,2.496-5.571,5.571-5.571h23.21c3.072,0,5.56,2.496,5.56,5.571V380.14z"></path>
+            <path style="fill:#4E4E4E;" d="M257.16,380.14c0,3.076-2.488,5.568-5.56,5.568h-23.21c-3.072,0-5.571-2.492-5.571-5.568v-23.184
+               c0-3.079,2.499-5.571,5.571-5.571h23.21c3.072,0,5.56,2.496,5.56,5.571V380.14z"></path>
+            <path style="fill:#4E4E4E;" d="M177.071,340.092c0,3.076-2.488,5.568-5.564,5.568h-23.206c-3.076,0-5.571-2.496-5.571-5.568
+               v-23.184c0-3.076,2.496-5.568,5.571-5.568h23.206c3.076,0,5.564,2.496,5.564,5.568V340.092z"></path>
+            <path style="fill:#4E4E4E;" d="M217.116,340.092c0,3.076-2.488,5.568-5.56,5.568h-23.21c-3.076,0-5.571-2.496-5.571-5.568v-23.184
+               c0-3.076,2.496-5.568,5.571-5.568h23.21c3.072,0,5.56,2.496,5.56,5.568V340.092z"></path>
+            <path style="fill:#4E4E4E;" d="M257.16,340.092c0,3.076-2.488,5.568-5.56,5.568h-23.21c-3.072,0-5.571-2.496-5.571-5.568v-23.184
+               c0-3.076,2.499-5.568,5.571-5.568h23.21c3.072,0,5.56,2.496,5.56,5.568V340.092z"></path>
+            <path style="fill:#4E4E4E;" d="M177.071,300.048c0,3.076-2.488,5.568-5.564,5.568h-23.206c-3.076,0-5.571-2.496-5.571-5.568
+               v-23.184c0-3.076,2.496-5.568,5.571-5.568h23.206c3.076,0,5.564,2.496,5.564,5.568V300.048z"></path>
+            <path style="fill:#4E4E4E;" d="M217.116,300.048c0,3.076-2.488,5.568-5.56,5.568h-23.21c-3.076,0-5.571-2.496-5.571-5.568v-23.184
+               c0-3.076,2.496-5.568,5.571-5.568h23.21c3.072,0,5.56,2.496,5.56,5.568V300.048z"></path>
+            <path style="fill:#4E4E4E;" d="M257.16,300.048c0,3.076-2.488,5.568-5.56,5.568h-23.21c-3.072,0-5.571-2.496-5.571-5.568v-23.184
+               c0-3.076,2.499-5.568,5.571-5.568h23.21c3.072,0,5.56,2.496,5.56,5.568V300.048z"></path>
+            <path style="fill:#4E4E4E;" d="M177.071,260.004c0,3.076-2.488,5.568-5.564,5.568h-23.206c-3.076,0-5.571-2.496-5.571-5.568V236.82
+               c0-3.076,2.496-5.568,5.571-5.568h23.206c3.076,0,5.564,2.496,5.564,5.568V260.004z"></path>
+            <path style="fill:#4E4E4E;" d="M338.596,199.432c0,3.076-2.492,5.571-5.568,5.571H148.301c-3.076,0-5.571-2.496-5.571-5.571
+               v-90.483c0-3.076,2.496-5.568,5.571-5.568h184.727c3.076,0,5.568,2.496,5.568,5.568V199.432z"></path>
+         </g>
+         <path style="fill:#74C59C;" d="M331.864,191.032c0,2.862-2.32,5.186-5.186,5.186H154.651c-2.87,0-5.194-2.324-5.194-5.186v-73.683
+            c0-2.862,2.324-5.186,5.194-5.186h172.031c2.866,0,5.186,2.324,5.186,5.186v73.683H331.864z"></path>
+         <g>
+            <path style="fill:#4E4E4E;" d="M217.116,260.004c0,3.076-2.488,5.568-5.56,5.568h-23.21c-3.076,0-5.571-2.496-5.571-5.568V236.82
+               c0-3.076,2.496-5.568,5.571-5.568h23.21c3.072,0,5.56,2.496,5.56,5.568V260.004z"></path>
+            <path style="fill:#4E4E4E;" d="M257.16,260.004c0,3.076-2.488,5.568-5.56,5.568h-23.21c-3.072,0-5.571-2.496-5.571-5.568V236.82
+               c0-3.076,2.499-5.568,5.571-5.568h23.21c3.072,0,5.56,2.496,5.56,5.568V260.004z"></path>
+         </g>
+         <path style="fill:#E79E2D;" d="M332.358,351.385h-40.044h-3.353h-19.854c-3.076,0-5.575,2.496-5.575,5.571v23.184
+            c0,3.076,2.499,5.568,5.575,5.568h19.858h3.353h40.044c3.072,0,5.568-2.492,5.568-5.568v-23.184
+            C337.926,353.877,335.43,351.385,332.358,351.385z"></path>
+         <g>
+            <path style="fill:#63BD6E;" d="M297.878,340.092c0,3.076-2.492,5.568-5.564,5.568h-23.206c-3.076,0-5.575-2.496-5.575-5.568
+               v-23.184c0-3.076,2.499-5.568,5.575-5.568h23.206c3.072,0,5.564,2.496,5.564,5.568L297.878,340.092L297.878,340.092z"></path>
+            <path style="fill:#63BD6E;" d="M337.926,340.092c0,3.076-2.496,5.568-5.568,5.568h-23.21c-3.072,0-5.568-2.496-5.568-5.568v-23.184
+               c0-3.076,2.496-5.568,5.568-5.568h23.21c3.072,0,5.568,2.496,5.568,5.568V340.092z"></path>
+         </g>
+         <g>
+            <path style="fill:#67B8CB;" d="M297.878,300.048c0,3.076-2.492,5.568-5.564,5.568h-23.206c-3.076,0-5.575-2.496-5.575-5.568
+               v-23.184c0-3.076,2.499-5.568,5.575-5.568h23.206c3.072,0,5.564,2.496,5.564,5.568L297.878,300.048L297.878,300.048z"></path>
+            <path style="fill:#67B8CB;" d="M337.926,300.048c0,3.076-2.496,5.568-5.568,5.568h-23.21c-3.072,0-5.568-2.496-5.568-5.568v-23.184
+               c0-3.076,2.496-5.568,5.568-5.568h23.21c3.072,0,5.568,2.496,5.568,5.568V300.048z"></path>
+         </g>
+         <g>
+            <path style="fill:#E84849;" d="M297.878,260.004c0,3.076-2.492,5.568-5.564,5.568h-23.206c-3.076,0-5.575-2.496-5.575-5.568V236.82
+               c0-3.076,2.499-5.568,5.575-5.568h23.206c3.072,0,5.564,2.496,5.564,5.568L297.878,260.004L297.878,260.004z"></path>
+            <path style="fill:#E84849;" d="M337.926,260.004c0,3.076-2.496,5.568-5.568,5.568h-23.21c-3.072,0-5.568-2.496-5.568-5.568V236.82
+               c0-3.076,2.496-5.568,5.568-5.568h23.21c3.072,0,5.568,2.496,5.568,5.568V260.004z"></path>
+         </g>
+         <path style="opacity:0.15;enable-background:new    ;" d="M149.756,191.032v-73.683c0-2.862,2.327-5.186,5.194-5.186h75.191
+            l84.059,84.055H154.95C152.084,196.218,149.756,193.894,149.756,191.032z"></path>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         <g>
+         </g>
+         </svg><h1 style="border-bottom: solid;">ESG Score Controversies</h1></span>
       <form action="">
-         <div id="processDiv">
-            <input type="button" id="process" value="Process">
+         <div id="processDiv" class="container-md">
+            <span style="
+    /* width: 50px; */
+    display: flex;
+    padding-right: 2px;
+"><h3 style="
+    padding-right: 11px;
+">Start Processing Files</h3> 
+<!--?xml version="1.0" encoding="iso-8859-1"?-->
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 54 54" style="enable-background:new 0 0 54 54;width:50px;height:50px;/* top: -12px; *//* padding-top: 3px; */margin-top: -5px;cursor: pointer;" xml:space="preserve">
+<g>
+	<g>
+		<path style="fill:#4FBA6F;" d="M27,53L27,53C12.641,53,1,41.359,1,27v0C1,12.641,12.641,1,27,1h0c14.359,0,26,11.641,26,26v0
+			C53,41.359,41.359,53,27,53z"></path>
+		<path style="fill:#4FBA6F;" d="M27,54C12.112,54,0,41.888,0,27S12.112,0,27,0s27,12.112,27,27S41.888,54,27,54z M27,2
+			C13.215,2,2,13.215,2,27s11.215,25,25,25s25-11.215,25-25S40.785,2,27,2z"></path>
+	</g>
+	<path style="fill:#FFFFFF;" d="M22.294,40c-0.256,0-0.512-0.098-0.707-0.293c-0.391-0.391-0.391-1.023,0-1.414L32.88,27
+		L21.587,15.707c-0.391-0.391-0.391-1.023,0-1.414s1.023-0.391,1.414,0l11.498,11.498c0.667,0.667,0.667,1.751,0,2.418
+		L23.001,39.707C22.806,39.902,22.55,40,22.294,40z"></path>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+</span>
+            <div id="progressbar"><div class="progress-label"><?xml version="1.0" encoding="iso-8859-1"?>
+               <!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+               <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                   viewBox="0 0 496 496" style="enable-background:new 0 0 496 496;width: 50px;height: 50px;/* left: 54px; */margin-left: 100px;" xml:space="preserve">
+               <path style="fill:#76FFE5;" d="M248,92c-13.6,0-24-10.4-24-24V24c0-13.6,10.4-24,24-24s24,10.4,24,24v44C272,80.8,261.6,92,248,92z"
+                  />
+               <path style="fill:#0DBFBA;" d="M248,496c-13.6,0-24-10.4-24-24v-44c0-13.6,10.4-24,24-24s24,10.4,24,24v44
+                  C272,485.6,261.6,496,248,496z"/>
+               <path style="fill:#BBFFF2;" d="M157.6,116c-8,0-16-4-20.8-12l-21.6-37.6c-6.4-11.2-2.4-26.4,8.8-32.8s26.4-2.4,32.8,8.8L178.4,80
+                  c6.4,11.2,2.4,26.4-8.8,32.8C166.4,114.4,161.6,116,157.6,116z"/>
+               <path style="fill:#1BCEB8;" d="M360,465.6c-8,0-16-4-20.8-12L317.6,416c-6.4-11.2-2.4-26.4,8.8-32.8c11.2-6.4,26.4-2.4,32.8,8.8
+                  l21.6,37.6c6.4,11.2,2.4,26.4-8.8,32.8C368,464.8,364,465.6,360,465.6z"/>
+               <path style="fill:#E1FFF9;" d="M92,181.6c-4,0-8-0.8-12-3.2l-37.6-21.6c-11.2-6.4-15.2-21.6-8.8-32.8s21.6-15.2,32.8-8.8l37.6,21.6
+                  c11.2,6.4,15.2,21.6,8.8,32.8C108,177.6,100,181.6,92,181.6z"/>
+               <path style="fill:#26DBC0;" d="M442.4,384c-4,0-8-0.8-12-3.2L392,359.2c-11.2-6.4-15.2-21.6-8.8-32.8c6.4-11.2,21.6-15.2,32.8-8.8
+                  l37.6,21.6c11.2,6.4,15.2,21.6,8.8,32.8C458.4,380,450.4,384,442.4,384z"/>
+               <path style="fill:#F3FFFD;" d="M68,272H24c-13.6,0-24-10.4-24-24s10.4-24,24-24h44c13.6,0,24,10.4,24,24S80.8,272,68,272z"/>
+               <path style="fill:#2EE5C6;" d="M472,272h-44c-13.6,0-24-10.4-24-24s10.4-24,24-24h44c13.6,0,24,10.4,24,24S485.6,272,472,272z"/>
+               <path style="fill:#11AEBA;" d="M53.6,384c-8,0-16-4-20.8-12c-6.4-11.2-2.4-26.4,8.8-32.8l37.6-21.6c11.2-6.4,26.4-2.4,32.8,8.8
+                  c6.4,11.2,2.4,26.4-8.8,32.8l-37.6,21.6C62.4,383.2,58.4,384,53.6,384z"/>
+               <path style="fill:#3BEDCB;" d="M404,181.6c-8,0-16-4-20.8-12c-6.4-11.2-2.4-26.4,8.8-32.8l37.6-21.6c11.2-6.4,26.4-2.4,32.8,8.8
+                  s2.4,26.4-8.8,32.8L416,178.4C412,180.8,408,181.6,404,181.6z"/>
+               <path style="fill:#0FB8BC;" d="M136,465.6c-4,0-8-0.8-12-3.2c-11.2-6.4-15.2-21.6-8.8-32.8l21.6-37.6c6.4-11.2,21.6-15.2,32.8-8.8
+                  c11.2,6.4,15.2,21.6,8.8,32.8l-21.6,37.6C152,461.6,144,465.6,136,465.6z"/>
+               <path style="fill:#57F7D8;" d="M338.4,116c-4,0-8-0.8-12-3.2c-11.2-6.4-15.2-21.6-8.8-32.8l21.6-37.6c6.4-11.2,21.6-15.2,32.8-8.8
+                  c11.2,6.4,15.2,21.6,8.8,32.8L359.2,104C354.4,111.2,346.4,116,338.4,116z"/>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               <g>
+               </g>
+               </svg></div></div>
          </div>
-         <div id="myPieChart"/>
+         <div id="myPieChart" class="container-md">
+         </div>
+         <div id="tblID">
+            <table class="table" id="imapact">
+               <thead>
+                  <tr>
+                    <th class="tblwidth10">Filename</th>
+                    <th class="tblwidth10">ESG Category</th>
+                    <th class="tblwidth50">Nature of Imapact</th>
+                    <th class="tblwidth15">Organization</th>
+                  </tr>
+                </thead>
+                <tbody id="imapactBody"></tbody>
+            </table>
+         </div>
      </form>
    </body>
 </html>

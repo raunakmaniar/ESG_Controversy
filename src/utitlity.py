@@ -13,6 +13,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from summarizer import Summarizer
 import re
+nlp = en_core_web_sm.load()
 
 class Utility():
 
@@ -99,21 +100,23 @@ class Utility():
         esgbert = AutoModelForSequenceClassification.from_pretrained("nbroad/ESG-BERT")
         nlp = pipeline("text-classification", model=esgbert, tokenizer=tokenizer)
         kpi = []
+        severity = []
         try:
             score = nlp(sentence,return_all_scores=True)
             if score:
                 for i in score[0]:
                     if i['score'] > 0.01:
                         kpi.append(self.kpi[i['label']])
+                        i['label'] = self.kpi[i['label']]
+                        severity.append(i)
         except Exception as e:
-            kpi = None
-        return kpi
+            kpi = {'impact':None,'score':None}
+        return {'impact':kpi,'score':severity}
 
 
     def process_org(self, sentence):
         exclude = set(string.punctuation)
         st = ''.join(ch for ch in sentence if ch not in exclude)
-        nlp = en_core_web_sm.load()
         doc = nlp(st)
         org_cnt = {}
         for X in doc.ents:
@@ -123,3 +126,28 @@ class Utility():
                 else:
                     org_cnt[X.text] = 1
         return org_cnt
+
+    def severity_process(self,org,rating,impact):
+        res = None
+        print('Inside',org,rating,impact)
+        data = {'org':'NA','severity':'NA'}
+        try:
+            if 'score' in rating[0]:
+                if rating[0]['score'] <= 2:
+                    org = sorted(org,reverse=True)
+                    if len(impact['score']) >1:
+                            severity = sorted(impact['score'], key = lambda item: item['score'],reverse=True)
+                            if severity != None or len(severity) != 0:
+                                data['severity'] = severity[0]['label']
+                            else:
+                                data['severity'] = 'NA'
+                    if org != None or len(org) != 0:
+                        data['org'] = org[0]
+                    else:
+                        data['org'] = 'NA'
+        except:
+            data = {'org':'NA','severity':'NA'}
+        return data
+
+
+
